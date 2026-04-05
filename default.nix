@@ -1,5 +1,6 @@
 # default.nix
 with import <nixpkgs> { };
 {
-  freedownloadmanager = pkgs.callPackage ./freedownloadmanager.nix { };
+  freedownloadmanager = pkgs.callPackage ./freedownloadmanager.nix { autoStart = true; };
+
 }
