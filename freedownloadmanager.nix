@@ -1,28 +1,29 @@
-{ lib
-, stdenv
-, fetchurl
-, dpkg
-, autoPatchelfHook
-, udev
-, libdrm
-, libpqxx
-, unixodbc
-, gst_all_1
-, libpulseaudio
-, mysql80
-, libtiff
-, libxcb-cursor
-, libxcb-wm
-, libxcb-image
-, libxcb-keysyms
-, libxcb-render-util
-, qt6
-, gtk3
-, pango
-, atk
-, cairo
-, gdk-pixbuf
-, autoStart ? false
+{
+  lib,
+  stdenv,
+  fetchurl,
+  dpkg,
+  autoPatchelfHook,
+  udev,
+  libdrm,
+  libpqxx,
+  unixodbc,
+  gst_all_1,
+  libpulseaudio,
+  mysql80,
+  libtiff,
+  libxcb-cursor,
+  libxcb-wm,
+  libxcb-image,
+  libxcb-keysyms,
+  libxcb-render-util,
+  qt6,
+  gtk3,
+  pango,
+  atk,
+  cairo,
+  gdk-pixbuf,
+  autoStart ? false,
 }:
 
 stdenv.mkDerivation rec {
@@ -61,7 +62,8 @@ stdenv.mkDerivation rec {
     atk
     cairo
     gdk-pixbuf
-  ] ++ (with gst_all_1; [
+  ]
+  ++ (with gst_all_1; [
     gstreamer
     gst-libav
     gst-plugins-base
@@ -91,7 +93,7 @@ stdenv.mkDerivation rec {
     # Copy files from the unpacked deb
     cp -r opt/freedownloadmanager $out
     cp -r usr/share $out
-    
+
     # Symlink binary
     ln -s $out/freedownloadmanager/fdm $out/bin/${pname}
 
