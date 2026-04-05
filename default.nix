@@ -2,5 +2,4 @@
 with import <nixpkgs> { };
 {
   freedownloadmanager = pkgs.callPackage ./freedownloadmanager.nix { autoStart = true; };
-
 }
