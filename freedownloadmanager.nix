@@ -31,7 +31,7 @@ stdenv.mkDerivation rec {
   version = "6.33.2";
 
   src = fetchurl {
-    url = "https://files2.freedownloadmanager.org/6/latest/freedownloadmanager.deb";
+    url = "http://debrepo.freedownloadmanager.org/pool/main/f/freedownloadmanager/freedownloadmanager_6.33.2.6656_amd64.deb";
     hash = "sha256-n1Y6h9xXeqU6LO6h66qlnT9wsjFYqToaAPJ8sTYL9Gg=";
   };
 
@@ -86,34 +86,25 @@ stdenv.mkDerivation rec {
   '';
 
   installPhase = ''
-    # Create required directories
     mkdir -p $out/bin
     mkdir -p $out/share/applications
-
-    # Copy files from the unpacked deb
     cp -r opt/freedownloadmanager $out
     cp -r usr/share $out
-
-    # Symlink binary
     ln -s $out/freedownloadmanager/fdm $out/bin/${pname}
 
-    # Fix the desktop file pathing and icons
+    ln -s ${lib.getLib libtiff}/lib/libtiff.so $out/freedownloadmanager/lib/libtiff.so.5
+
     substituteInPlace $out/share/applications/freedownloadmanager.desktop \
       --replace-fail 'Exec=/opt/freedownloadmanager/fdm' 'Exec=${pname}' \
-      --replace-fail "Icon=/opt/freedownloadmanager/icon.png" "Icon=$out/freedownloadmanager/icon.png"
+      --replace-warn "Icon=/opt/freedownloadmanager/icon.png" "Icon=$out/freedownloadmanager/icon.png"
 
-    # Handle Autostart if enabled
     ${lib.optionalString autoStart ''
       mkdir -p $out/etc/xdg/autostart
       cp $out/share/applications/freedownloadmanager.desktop $out/etc/xdg/autostart/fdm.desktop
       substituteInPlace $out/etc/xdg/autostart/fdm.desktop \
         --replace-fail 'Exec=${pname}' 'Exec=${pname} --hidden'
     ''}
-
-    # Fix libtiff versioning
-    ln -s ${lib.getLib libtiff}/lib/libtiff.so $out/freedownloadmanager/lib/libtiff.so.5
   '';
-
   meta = with lib; {
     description = "A smart and fast internet download manager";
     homepage = "https://www.freedownloadmanager.org";
