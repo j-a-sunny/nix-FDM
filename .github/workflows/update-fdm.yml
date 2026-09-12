@@ -29,7 +29,7 @@ jobs:
         if: steps.update.outputs.changed == 'true'
         run: |
           nix build --impure --extra-experimental-features 'nix-command flakes' \
-            --expr '(import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz") {}).callPackage ./freedownloadmanager.nix {}' \
+            --expr '(import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz") { config.allowUnfree = true; }).callPackage ./freedownloadmanager.nix {}' \
             --no-link -L
 
       - name: Open pull request
