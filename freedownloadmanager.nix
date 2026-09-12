@@ -10,7 +10,6 @@
   unixodbc,
   gst_all_1,
   libpulseaudio,
-  mysql80,
   libtiff,
   libxcb-cursor,
   libxcb-wm,
@@ -28,11 +27,11 @@
 
 stdenv.mkDerivation rec {
   pname = "freedownloadmanager";
-  version = "6.33.2";
+  version = "6.34.4";
 
   src = fetchurl {
-    url = "http://debrepo.freedownloadmanager.org/pool/main/f/freedownloadmanager/freedownloadmanager_6.33.2.6656_amd64.deb";
-    hash = "sha256-n1Y6h9xXeqU6LO6h66qlnT9wsjFYqToaAPJ8sTYL9Gg=";
+    url = "https://files2.freedownloadmanager.org/6/latest/freedownloadmanager.deb";
+    hash = "sha256-KZxb7xgLV4riI+A6EIJ5w7gOx/m84+F5JGnUbe4vxs0=";
   };
 
   unpackPhase = "dpkg-deb -x $src .";
@@ -48,7 +47,6 @@ stdenv.mkDerivation rec {
     libpqxx
     unixodbc
     stdenv.cc.cc
-    mysql80
     libtiff
     libxcb-cursor
     libxcb-wm
@@ -72,16 +70,24 @@ stdenv.mkDerivation rec {
     gst-plugins-ugly
   ]);
 
+  # These are all optional Qt SQL-plugin backends FDM bundles for its
+  # database storage feature (Oracle, Mimer, Firebird, MySQL) -- not needed
+  # for normal download-manager use, so we ignore rather than chase exact
+  # sonames that drift whenever the upstream client libs update.
   autoPatchelfIgnoreMissingDeps = [
     "libclntsh.so.23.1"
     "libmimerapi.so"
     "libfbclient.so.2"
+    "libmysqlclient.so.21"
   ];
 
   preFixup = ''
+    ln -s ${lib.getLib libtiff}/lib/libtiff.so.6 $out/freedownloadmanager/lib/libtiff.so.5
+
     qtWrapperArgs+=(
       --prefix QT_PLUGIN_PATH : "$out/freedownloadmanager/plugins"
       --prefix QML2_IMPORT_PATH : "$out/freedownloadmanager/qml"
+      --prefix LD_LIBRARY_PATH : "$out/freedownloadmanager/lib"
     )
   '';
 
@@ -91,8 +97,6 @@ stdenv.mkDerivation rec {
     cp -r opt/freedownloadmanager $out
     cp -r usr/share $out
     ln -s $out/freedownloadmanager/fdm $out/bin/${pname}
-
-    ln -s ${lib.getLib libtiff}/lib/libtiff.so $out/freedownloadmanager/lib/libtiff.so.5
 
     substituteInPlace $out/share/applications/freedownloadmanager.desktop \
       --replace-fail 'Exec=/opt/freedownloadmanager/fdm' 'Exec=${pname}' \
