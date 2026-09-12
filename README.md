@@ -1,28 +1,58 @@
-# Free Download Manager installation on NixOS
+# Free Download Manager for NixOS
 
-## Temporary Install
+This repository provides Free Download Manager as a flake package. The package
+is unfree and currently supports `x86_64-linux`.
+
+## Install with a temporary flake
+
+Run this from any directory:
 
 ```bash
-nix-env -i -f https://github.com/j-a-sunny/nix-FDM/archive/refs/heads/main.zip
+nix profile install github:kreutzi/nix-FDM
 ```
 
-## Temporary Install with autostart
+This installs the package from this repository's `main` branch and records the
+flake revision in the profile. Future package updates can be installed with:
 
 ```bash
-nix-env -i -f https://github.com/j-a-sunny/nix-FDM/archive/refs/heads/fdm-autostart.zip
+nix profile upgrade '.*'
 ```
 
-## or permanent install
+## Use from a NixOS flake
 
-Download the `freedownloadmanager.nix` file from the repo to your `/etc/nixos` folder or where ever you want and link it in your /etc/nixos/configuration.nix
-
-After that add it to the environment.systemPackages
+Add this repository to your system flake inputs:
 
 ```nix
-environment.systemPackages = with pkgs; [
-  (pkgs.callPackage ./freedownloadmanager.nix { autoStart = true; }) # You can also configure autostart here
-];
+{
+  inputs.nix-fdm.url = "github:kreutzi/nix-FDM";
+
+  outputs = { self, nixpkgs, nix-fdm, ... }:
+    {
+      nixosConfigurations.my-host = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ({ pkgs, ... }: {
+            environment.systemPackages = [
+              nix-fdm.packages.${pkgs.system}.default
+            ];
+          })
+        ];
+      };
+    };
+}
 ```
+
+Update the pinned package revision and rebuild when you want to receive an
+automated update merged into this repository:
+
+```bash
+nix flake lock --update-input nix-fdm
+sudo nixos-rebuild switch --flake .#my-host
+```
+
+The GitHub Actions workflow checks for new FDM releases, updates the package
+version and hash, builds it, and opens an auto-merge pull request. Flake locks
+keep deployed systems reproducible until you explicitly update them.
 
 ## Fix Autostart
 
