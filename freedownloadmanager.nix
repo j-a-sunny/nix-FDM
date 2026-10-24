@@ -29,11 +29,11 @@
 
 stdenv.mkDerivation rec {
   pname = "freedownloadmanager";
-  version = "6.35.1.7021";
+  version = "6.35.2.7075";
 
   src = fetchurl {
     url = "https://files2.freedownloadmanager.org/6/latest/freedownloadmanager.deb";
-    hash = "sha256-3xaIWR6xG/TZBHs8rkS2bXzZd6dlDXmkS5l6LtBc9bA=";
+    hash = "sha256-gC1+fD+twEDAn8XGSjr1MJaw+jQiexFDGi9VOltzU6k=";
   };
 
   unpackPhase = "dpkg-deb -x $src .";
